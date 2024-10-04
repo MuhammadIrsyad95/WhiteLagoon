@@ -29,6 +29,9 @@ namespace WhiteLagoon.Domain.Entities
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get;set; }
         [ValidateNever]
-        public IEnumerable<Amenity> VillaAmenity { get; set; }  
+        public IEnumerable<Amenity> VillaAmenity { get; set; }
+
+        [NotMapped]
+        public bool isAvailable { get; set; } = true;
     }
 }
