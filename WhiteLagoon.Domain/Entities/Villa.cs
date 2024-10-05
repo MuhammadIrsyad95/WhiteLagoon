@@ -17,7 +17,7 @@ namespace WhiteLagoon.Domain.Entities
         public required string Name { get; set; }
         public string? Description { get; set; }
         [Display(Name = "Price per night")]
-        [Range(1000, 100000)]
+        [Range(1000, 1000000)]
         public double Price { get; set; }
         [Range (1,10)]
         public int Sqft { get; set; }
