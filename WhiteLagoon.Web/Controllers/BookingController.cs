@@ -25,8 +25,16 @@ namespace WhiteLagoon.Web.Controllers
             _unitOfWork = unitOfWork;
         }
         [Authorize]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [Authorize]
+        
         public IActionResult FinalizeBooking(int villaId, DateOnly checkInDate, int nights)
         {
+
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
@@ -38,7 +46,7 @@ namespace WhiteLagoon.Web.Controllers
                 Villa = _unitOfWork.Villa.Get(u => u.Id == villaId, includeProperties: "VillaAmenity"),
                 CheckInDate = checkInDate,
                 Nights = nights,
-                CheckOutDate = checkInDate.AddDays(nights),
+                CheckOutDate= checkInDate.AddDays(nights),
                 UserId = userId,
                 Phone = user.PhoneNumber,
                 Email = user.Email,
@@ -59,6 +67,8 @@ namespace WhiteLagoon.Web.Controllers
 
             booking.Status = SD.StatusPending;
             booking.BookingDate = DateTime.Now;
+
+
 
             _unitOfWork.Booking.Add(booking);
             _unitOfWork.Save();
@@ -90,10 +100,12 @@ namespace WhiteLagoon.Web.Controllers
 
             var service = new Stripe.Checkout.SessionService();
             Session session = service.Create(options);
+
             // Simpan StripeSessionId ke dalam booking
             booking.StripeSessionId = session.Id; // Pastikan booking memiliki properti StripeSessionId
             _unitOfWork.Booking.Update(booking); // Perbarui booking dengan StripeSessionId
             _unitOfWork.Save();
+
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
         }
@@ -103,6 +115,7 @@ namespace WhiteLagoon.Web.Controllers
         {
             Booking bookingFromDb = _unitOfWork.Booking.Get(u=>u.Id == bookingId,
                 includeProperties:"User,Villa");
+
             if(bookingFromDb.Status==SD.StatusPending)
             {
                 var service = new Stripe.Checkout.SessionService();
@@ -118,5 +131,44 @@ namespace WhiteLagoon.Web.Controllers
             return View(bookingId);
         }
 
+        [Authorize]
+        public IActionResult BookingDetails(int bookingId)
+        {
+            Booking bookingFromDb = _unitOfWork.Booking.Get(u => u.Id == bookingId,
+               includeProperties: "User,Villa");
+
+            return View(bookingFromDb);
+        }
+
+        #region API Calls
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetAll(string status)
+        {
+          
+        
+            IEnumerable<Booking> objBookings;
+
+            if(User.IsInRole(SD.Role_Admin))
+            {
+                objBookings = _unitOfWork.Booking.GetAll(includeProperties:"User,Villa");
+            }
+            else
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                objBookings = _unitOfWork.Booking
+                    .GetAll(u => u.UserId == userId, includeProperties:"User,Villa");
+
+            }
+            if (!string.IsNullOrEmpty(status))
+            {
+                objBookings = objBookings.Where(u => u.Status != null && u.Status.ToLower().Equals(status.ToLower()));
+            }
+            return Json(new { data = objBookings });
+        }
+
+        #endregion
     }
 }
