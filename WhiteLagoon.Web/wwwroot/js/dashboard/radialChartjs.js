@@ -17,8 +17,10 @@
         plotOptions: {
             radialBar: {
                 dataLabels: {
+
                     value: {
                         offsetY: -10,
+                        color: chartColors[0],
                     }
                 }
             }
@@ -26,7 +28,6 @@
         labels: [""]
     };
     var chart = new ApexCharts(document.querySelector("#" + id), options);
-
     chart.render();
 
 }
@@ -46,4 +47,5 @@ function getChartColorsArray(id) {
             });
         }
     }
+
 }

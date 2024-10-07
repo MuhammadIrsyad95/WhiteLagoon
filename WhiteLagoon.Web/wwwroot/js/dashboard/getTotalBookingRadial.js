@@ -10,12 +10,13 @@ function loadTotalBookingRadialChart() {
         dataType: 'json',
         success: function (data) {
             document.querySelector("#spanTotalBookingCount").innerHTML = data.totalCount;
+
             var sectionCurrentCount = document.createElement("span");
             if (data.hasRationIncresed) {
                 sectionCurrentCount.className = "text-success me-1";
                 sectionCurrentCount.innerHTML = '<i class= "bi bi-arrow-up-right-circle me-1"></i><span>' + data.countInCurrentMonth + '</span>';
             } else {
-                sectionCurrentCount.className = "text-success me-1";
+                sectionCurrentCount.className = "text-danger me-1";
                 sectionCurrentCount.innerHTML = '<i class= "bi bi-arrow-down-right-circle me-1"></i><span>' + data.countInCurrentMonth + '</span>';
             }
             document.querySelector("#sectionBookingCount").append(sectionCurrentCount);
