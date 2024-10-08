@@ -7,11 +7,11 @@
 <!-- Container utama untuk halaman, menggunakan skema warna berdasarkan peran (Admin atau User) -->
 <div class="@(isAdmin ? "bg-dark text-white" : "bg-white text-black")">
     <!-- Bagian Teks Selamat Datang -->
-    <div class="text-center my-4">
-        <h1>
+    <div class="text-center my-4" >
+        <h1 style="color: @(isAdmin ? "white" : "#003462");">
             Welcome to OnePoint Hall Booking System
         </h1>
-        <h4>
+        <h4 style="color: @(isAdmin ? "white" : "#003462");">
             A Modern Meeting Hall Designed for Seamless Today's Offline, Online, and Hybrid Events
         </h4>
     </div>
