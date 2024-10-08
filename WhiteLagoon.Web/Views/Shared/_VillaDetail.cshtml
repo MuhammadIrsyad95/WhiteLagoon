@@ -1,4 +1,5 @@
-﻿@model Villa
+﻿@using System.Globalization
+@model Villa
 
 <div class="row">
     <div class="col-12 col-md-5">
@@ -31,7 +32,7 @@
                 <p class="text-warning font-weight-bold pt-1">
 
                     <span style=" #ff6a00">
-                        @Model.Price.ToString("c") / night
+                        @Model.Price.ToString("C", new CultureInfo("id-ID")) / night
                     </span>
                 </p>
             </span>

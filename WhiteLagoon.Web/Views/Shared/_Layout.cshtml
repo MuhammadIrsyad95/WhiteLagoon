@@ -1,87 +1,180 @@
 ﻿<!DOCTYPE html>
-<html lang="en" data-bs-theme ="dark">
+<html lang="en">
 <head>
+    <!-- Meta tags for responsiveness and character set -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Page Title -->
     <title>@ViewData["Title"] - WhiteLagoon.Web</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Bootstrap CSS for layout and responsiveness -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"
+          integrity="sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Custom stylesheets -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/WhiteLagoon.Web.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+          integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Spinner CSS for loading animations -->
     <link rel="stylesheet" href="~/css/spinner.css" />
+
+    <!-- DataTables CSS for tables -->
     <link rel="stylesheet" href="//cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+    <!-- Inline style for custom carousel card and background settings -->
+    <style>
+        /* Fixed navbar and footer */
+        .navbar, .footer {
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* Make navbar fixed at the top */
+        .navbar {
+            top: 0;
+            background-color: #f8f9fa;
+        }
+
+        /* Make footer fixed at the bottom */
+        .footer {
+            bottom: 0;
+            background-color: #f8f9fa;
+        }
+
+        form {
+            border-radius: 10px; /* Sesuaikan sudut form */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tambahkan shadow agar form terlihat lebih jelas */
+            padding: 0; /* Berikan padding di dalam form */
+            background-color: #f8f9fa; /* Warna background yang ringan untuk form */
+            margin-top: 20px; /* Jarak antara carousel dan form */
+        }
+
+        /* Adjust body padding to avoid overlapping with fixed navbar and footer */
+       /*  body {
+            background-image: url('/images/OnePointBooking/bg.png'); /* Perbaiki path */
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        } */
+
+        /* Carousel card styling */
+        .carousel {
+            margin-bottom: 50px;
+        }
+        .carousel-item img {
+            max-height: 500px; /* Set a fixed height */
+            width: 100%; /* Make sure images scale correctly */
+            object-fit: cover; /* Crop image to fill */
+        }
+
+
+        .carousel-item img {
+            max-height: 500px;
+            object-fit: cover;
+            border-radius: 10px; /* Card-like rounded corners */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+        }
+
+        /* Adjust for a light theme */
+        body {
+            background-color: #ffffff;
+            color: #000000;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar Section -->
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light  border-bottom box-shadow">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/images/resort.png" style="width:35px"/></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <!-- Logo and home link -->
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/OnePointBooking/Logo.png" style="width:100%" />
+                </a>
+                <!-- Navbar toggler for mobile view -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <!-- Navbar links -->
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link " asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        <!-- Conditional content for Admin role -->
                         @if (User.IsInRole(SD.Role_Admin))
                         {
-                     
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Content Management
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Villa" asp-action="Index">Villa</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="VillaNumber" asp-action="Index">Villa Number</a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Amenity" asp-action="Index">Amenity</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusApproved">Booking</a>
-                                </li>
-                            </ul>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Content Management
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Villa" asp-action="Index">Villa</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="VillaNumber" asp-action="Index">Villa Number</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Amenity" asp-action="Index">Amenity</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Booking" asp-action="Index" asp-route-status="@SD.StatusApproved">Booking</a>
+                                    </li>
+                                </ul>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link "  asp-controller="Booking" asp-action="Index">Manage Bookings</a>
+                                <a class="nav-link " asp-controller="Booking" asp-action="Index">Manage Bookings</a>
                             </li>
-                            
                         }
                     </ul>
+                    <!-- Login partial -->
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="">
-        <main role="main" >
+
+    <!-- Main Content Section -->
+    <div class="container">
+        <main role="main">
+            <!-- Spinner for loading animation -->
             <div class="loading spinner" style="display:none">Loading</div>
-            <partial name="_Notification"/>
+            <!-- Notifications partial -->
+            <partial name="_Notification" />
+            <!-- Render the main body content -->
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer bg-dark text-muted">
+    <!-- Footer Section -->
+    <footer class="footer text-muted">
         <div class="container text-center">
             &copy; 2024 Muhammad Irsyad. All Rights Reserved.
         </div>
     </footer>
-    @* jquery-ajax-unobtrusive@3.2.6 *@
+
+    <!-- Required JS Libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.bundle.min.js" integrity="sha512-sH8JPhKJUeA9PWk3eOcOl8U+lfZTgtBXD41q6cO/slwxGHCxKcW45K4oPCUhHG7NMB4mbKEddVmPuTXtpbCbFA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.0.1/js/bootstrap.bundle.min.js"
+            integrity="sha512-sH8JPhKJUeA9PWk3eOcOl8U+lfZTgtBXD41q6cO/slwxGHCxKcW45K4oPCUhHG7NMB4mbKEddVmPuTXtpbCbFA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js" asp-append-version="true"></script>
-    @* <script src="~/js/jquery.unobtrusive-ajax.min.js"></script> *@
+
+    <!-- Option to include additional scripts per page -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -1,4 +1,5 @@
-﻿@model HomeVM
+﻿@using System.Globalization
+@model HomeVM
 <div id="VillasList">
 <div class="row px-lg-5 m-lg-4 m-sm-0 px-sm-0" style="--bs-gutter-x:0">
     @foreach (var villa in Model.VillaList)
@@ -50,8 +51,8 @@
                         <div class="col-4">
                             <span class="text-warning float-end font-weight-bold pt-1" style="font-size:25px;">
 
-                                <span style="border-bottom:1px solid #ff6a00">
-                                    @villa.Price.ToString("c")
+                                <span style="solid #ff6a00">
+                                        @villa.Price.ToString("c", new CultureInfo("id-ID"))
                                 </span>
                             </span>
                         </div>

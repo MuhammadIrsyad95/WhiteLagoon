@@ -1,18 +1,30 @@
 ﻿@model HomeVM
+@{
+    // Cek apakah user adalah admin
+    bool isAdmin = User.IsInRole("Admin");
+}
 
-<!-- Teks Selamat Datang dan Deskripsi -->
-<div>
-     <div class="text-center my-4">
-            <h1>Welcome to OnePoint Hall Booking System</h1>
-            <p>A Modern Meeting Hall Designed for Seamless Today's Offline, Online, and Hybrid Events</p>
-     </div>
+<!-- Container utama untuk halaman, menggunakan skema warna berdasarkan peran (Admin atau User) -->
+<div class="@(isAdmin ? "bg-dark text-white" : "bg-white text-black")">
+    <!-- Bagian Teks Selamat Datang -->
+    <div class="text-center my-4">
+        <h1>
+            Welcome to OnePoint Hall Booking System
+        </h1>
+        <h4>
+            A Modern Meeting Hall Designed for Seamless Today's Offline, Online, and Hybrid Events
+        </h4>
+    </div>
 
+    <!-- Carousel untuk gambar-gambar yang bergeser -->
     <div id="carouselExampleIndicators" class="carousel slide">
+        <!-- Indikator Carousel (bulatan di bawah gambar) -->
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
             <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
         </div>
+        <!-- Isi dari Carousel -->
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <img src="~/images/slide2.jpg" class="d-block w-100" alt="...">
@@ -21,6 +33,7 @@
                 <img src="~/images/slide1.jpg" class="d-block w-100" alt="...">
             </div>
         </div>
+        <!-- Tombol Previous dan Next pada Carousel -->
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
@@ -28,24 +41,26 @@
         <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
-        </button> 
+        </button>
     </div>
-    <form method="post" style="background-color:black"
-      asp-action="GetVillasByDate">
 
+    <!-- Form untuk memilih tanggal check-in dan jumlah malam -->
+    <form method="post" class="@(isAdmin ? "bg-dark text-white" : "bg-light text-dark")" asp-action="GetVillasByDate">
         <div class="row p-0 mx-0 py-4">
-
-            <div class="col-12 col-md-5  offset-md-1 pl-2  pr-2 pr-md-0">
+            <!-- Input untuk memilih tanggal Check-In -->
+            <div class="col-12 col-md-5 offset-md-1 pl-2 pr-2 pr-md-0">
                 <div class="form-group">
                     <label>Check In Date</label>
-                <input id="CheckInDate" asp-for="CheckInDate" type="date" class="form-control" />
+                    <input id="CheckInDate" asp-for="CheckInDate" type="date" class="form-control" />
                 </div>
             </div>
 
+            <!-- Input untuk memilih jumlah malam menginap -->
             <div class="col-8 col-md-3 pl-2 pr-2">
                 <div class="form-group">
                     <label>No. of nights</label>
                     <select class="form-select" asp-for="Nights">
+                        <!-- Looping untuk opsi jumlah malam dari 1 sampai 10 -->
                         @for (var i = 1; i < 11; i++)
                         {
                             <option value="@i">@i</option>
@@ -54,48 +69,87 @@
                 </div>
             </div>
 
+            <!-- Tombol untuk mengecek ketersediaan villa -->
             <div class="col-4 col-md-2 pt-4 pr-2">
                 <div class="form-group">
                     <button type="button" onclick="fnLoadVillaList()" class="btn btn-success btn-block">
                         <i class="bi bi-search"></i>  &nbsp; Check Availability
                     </button>
-
                 </div>
             </div>
         </div>
 
-   <partial name="_VillaList" model="Model"/>
+        <!-- Bagian untuk menampilkan daftar villa yang tersedia -->
+        <partial name="_VillaList" model="Model" />
     </form>
 </div>
-</div>
-@section scripts{
-<script>
-        function fnLoadVillaList() {
-            $('.spinner').show();
 
+<!-- Script untuk menangani pemanggilan AJAX saat mengecek ketersediaan villa -->
+@section scripts {
+    <script>
+        // Fungsi untuk memuat daftar villa yang tersedia berdasarkan input Check-In Date dan jumlah malam
+        function fnLoadVillaList() {
+            $('.spinner').show(); // Menampilkan spinner loading
+
+            // Mengambil data dari input Check-In Date dan jumlah malam
             var objData = {
                 checkInDate: $("#CheckInDate").val(),
                 nights: $("#Nights").val()
             };
-          $.ajax({
-            url: "@Url.Action("GetVillasByDate","Home")",
-            data: objData,
-            type: "POST",
-            success: function (data) {
-                 $("#VillasList").empty();
-                 $("#VillasList").html(data);
-                 $('.spinner').hide();
-            },
-            failure: function (response) {
-                $('.spinner').hide();
-                alert(response.responseText);
-            },
-            error: function (response) {
-                $('.spinner').hide();
-                alert(response.responseText);
-            }
 
-        });
-    }
-</script>
+            // Mengirim data melalui AJAX
+            $.ajax({
+                url: "@Url.Action("GetVillasByDate", "Home")", // URL tujuan (action GetVillasByDate)
+                data: objData, // Data yang dikirim
+                type: "POST", // Metode pengiriman data
+                success: function (data) {
+                    $("#VillasList").empty(); // Kosongkan daftar villa sebelumnya
+                    $("#VillasList").html(data); // Isi dengan data villa baru
+                    $('.spinner').hide(); // Sembunyikan spinner loading
+                },
+                failure: function (response) {
+                    $('.spinner').hide(); // Sembunyikan spinner jika terjadi kesalahan
+                    alert(response.responseText); // Tampilkan pesan kesalahan
+                },
+                error: function (response) {
+                    $('.spinner').hide(); // Sembunyikan spinner jika terjadi error
+                    alert(response.responseText); // Tampilkan pesan error
+                }
+            });
+        }
+    </script>
 }
+
+<style>
+    /* Fixed navbar and footer with transparency */
+    .navbar {
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: rgba(255, 255, 255, 0.8); /* Transparan */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tambahkan bayangan */
+    }
+
+    /* Adjust body padding to avoid overlapping with fixed navbar */
+    body {
+        padding-top: 80px; /* Sesuaikan dengan tinggi navbar */
+        background-image: url('/images/OnePointBooking/bg.png'); /* Sesuaikan path */
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+
+    /* Untuk teks bagian atas agar terlihat */
+    h1, h4 {
+        z-index: 1; /* Pastikan teks berada di depan */
+        position: relative;
+    }
+
+    /* Carousel card styling */
+    .carousel-item img {
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+</style>
