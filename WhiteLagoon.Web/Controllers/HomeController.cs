@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using WhiteLagoon.Application.Common.Interfaces;
 using WhiteLagoon.Application.Common.Utility;
+using WhiteLagoon.Application.Services.Interface;
 using WhiteLagoon.Web.Models;
 using WhiteLagoon.Web.ViewModels;
 
@@ -9,16 +10,18 @@ namespace WhiteLagoon.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public HomeController(IUnitOfWork unitOfWork)
+        private readonly  IVillaService _villaService;
+        private readonly  IWebHostEnvironment _webHostEnvironment;
+        public HomeController(IVillaService villaService, IWebHostEnvironment webHostEnvironment)
         {
-            _unitOfWork = unitOfWork;
+            _villaService = villaService;
+            _webHostEnvironment = webHostEnvironment;   
         }
         public IActionResult Index()
         {
             HomeVM homeVM = new()
             {
-                VillaList = _unitOfWork.Villa.GetAll(includeProperties : "VillaAmenity"),
+                VillaList = _villaService.GetAllVillas(),
                 Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
             };
@@ -27,22 +30,11 @@ namespace WhiteLagoon.Web.Controllers
         [HttpPost]
         public IActionResult GetVillasByDate(int nights, DateOnly checkInDate)
         {
-            var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").ToList();
-            var villaNumbersList = _unitOfWork.VillaNumber.GetAll().ToList();
-            var bookedVillas = _unitOfWork.Booking.GetAll(u=>u.Status==SD.StatusApproved ||
-            u.Status==SD.StatusCheckedIn).ToList();
 
-            foreach (var villa in villaList)
-            {
-                int roomAvailable =SD.VillaRoomsAvailable_Count
-                    (villa.Id, villaNumbersList, checkInDate, nights, bookedVillas);
-
-                villa.isAvailable = roomAvailable > 0 ? true : false;
-            }
             HomeVM homeVM = new()
             {
                 CheckInDate = checkInDate,
-                VillaList = villaList,
+                VillaList = _villaService.GetVillasAvailabilityByDate(nights, checkInDate),
                 Nights = nights
             };
             return PartialView("_VillaList", homeVM);
