@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using Syncfusion.Licensing;
 using WhiteLagoon.Application.Common.Interfaces;
 using WhiteLagoon.Application.Services.Implementation;
 using WhiteLagoon.Application.Services.Interface;
@@ -43,6 +44,8 @@ var app = builder.Build();
 //konfirgurasi stipe key
 StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
 
+
+SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetSection("Syncfusion:Licensekey").Get<string>());
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
