@@ -20,6 +20,7 @@ namespace WhiteLagoon.Application.Services.Implementation
         }
         public void CreateBooking(Booking booking)
         {
+            booking.Status = SD.StatusApproved;  // Automatically approve the booking
             _unitOfWork.Booking.Add(booking);
             _unitOfWork.Save();
         }
@@ -77,23 +78,6 @@ namespace WhiteLagoon.Application.Services.Implementation
             _unitOfWork.Save();
         }
 
-        public void UpdateStripePaymentID(int bookingId, string sessiodId, string paymentIntentId)
-        {
-            var bookingFromDb = _unitOfWork.Booking.Get(m => m.Id == bookingId, tracked: true);
-            if (bookingFromDb != null)
-            {
-                if (!string.IsNullOrEmpty(sessiodId))
-                {
-                    bookingFromDb.StripeSessionId = sessiodId;
-                }
-                if (!string.IsNullOrEmpty(paymentIntentId))
-                {
-                    bookingFromDb.StripePaymentIntentId = paymentIntentId;
-                    bookingFromDb.PaymentDate = DateTime.Now;
-                    bookingFromDb.IsPaymentSuccessful = true;
-                }
-            }
-            _unitOfWork.Save();
-        }
+
     }
 }

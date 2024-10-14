@@ -81,7 +81,8 @@ namespace WhiteLagoon.Web.Controllers
             var villa = _villaService.GetVillaById(booking.VillaId);
             booking.TotalCost = villa.Price * booking.Nights;
 
-            booking.Status = SD.StatusPending;
+            // Ubah status langsung ke "Approved" sebelumnya "Pending"
+            booking.Status = SD.StatusApproved;
             booking.BookingDate = DateTime.Now;
 
             if (!_villaService.IsVillaAvailableByDate(villa.Id, booking.Nights, booking.CheckInDate))
@@ -95,42 +96,11 @@ namespace WhiteLagoon.Web.Controllers
                     nights = booking.Nights
                 });
             }
-            
+            // Buat booking tanpa Stripe
             _bookingService.CreateBooking(booking);
 
-            var domain = Request.Scheme + "://" + Request.Host.Value + "/" ;
-            var options = new Stripe.Checkout.SessionCreateOptions
-            {
-                LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
-                Mode = "payment",
-                SuccessUrl = domain + $"booking/BookingConfirmation?bookingId={booking.Id}",
-                CancelUrl = domain + $"booking/FinalizeBooking?villaId={booking.VillaId}&checkInDate={booking.CheckInDate}&nights={booking.Nights}",
-            };
-
-            options.LineItems.Add(new SessionLineItemOptions
-            {
-                PriceData = new SessionLineItemPriceDataOptions
-                {
-                    UnitAmount = (long)(booking.TotalCost * 100),
-                    Currency = "idr",
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = villa.Name
-                        //Images = new List<string> { domain + villa.ImageUrl },
-                    },
-                },
-                Quantity = 1,
-            });
-
-            var service = new Stripe.Checkout.SessionService();
-            Session session = service.Create(options);
-
-            // Simpan StripeSessionId ke dalam booking
-            booking.StripeSessionId = session.Id; // Pastikan booking memiliki properti StripeSessionId
-            _bookingService.UpdateStripePaymentID(booking.Id, session.Id,session.PaymentIntentId); // Perbarui booking dengan StripeSessionId
-            
-            Response.Headers.Add("Location", session.Url);
-            return new StatusCodeResult(303);
+            // Redirect ke halaman konfirmasi booking
+            return RedirectToAction(nameof(BookingConfirmation), new { bookingId = booking.Id });
         }
 
         [Authorize]
@@ -138,17 +108,10 @@ namespace WhiteLagoon.Web.Controllers
         {
             Booking bookingFromDb = _bookingService.GetBookingById(bookingId);
 
-            if(bookingFromDb.Status==SD.StatusPending)
+            if (bookingFromDb.Status == SD.StatusPending)
             {
-                var service = new Stripe.Checkout.SessionService();
-                Session session = service.Get(bookingFromDb.StripeSessionId);
-
-                if (session.PaymentStatus=="paid")
-                { 
-                    //di set villa number jadi 0 harusnya : _unitOfWork.Booking.UpdateStatus(bookingFromDb.Id, SD.StatusApproved, 0);
-                    _bookingService.UpdateStatus(bookingFromDb.Id, SD.StatusApproved, 0);
-                    _bookingService.UpdateStripePaymentID(bookingFromDb.Id,session.Id, session.PaymentIntentId);
-                }
+                // Update status langsung jika diperlukan (tanpa Stripe)
+                _bookingService.UpdateStatus(bookingFromDb.Id, SD.StatusApproved, 0);
             }
             return View(bookingId);
         }
